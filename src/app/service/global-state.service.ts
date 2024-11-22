@@ -115,6 +115,19 @@ export class GlobalStateService {
     }
   }
 
+  
+  async register(email: string, password: string): Promise<void> {
+    try {
+      const credentials =  await createUserWithEmailAndPassword(this.auth, email, password);
+      const userData = this.extractUserData(credentials.user);
+      await this.saveUser(userData);
+      this.router.navigate(['']);
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      this.showAlert('Registration Error', error?.message! || 'Error al cerrar sesión');
+    }
+  }
+
   // Logout method
   async logout(): Promise<void> {
     try {
