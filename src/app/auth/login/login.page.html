@@ -1,0 +1,36 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Login</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+
+    <ion-item color="transparent" lines="none">
+      <ion-label position="floating">Correo Electrónico</ion-label>
+      <ion-input type="email" required name="email" errorText="Invalid email" ngModel email [(ngModel)]="user.email"></ion-input>
+    </ion-item>
+
+    <ion-item color="transparent" lines="none">
+      <ion-label position="floating">Contraseña</ion-label>
+      <ion-input 
+        type="password"  
+        name="password" 
+        required
+        minlength="4"   
+        errorText="Password is required" 
+        ngModel [(ngModel)]="user.password"
+        ></ion-input>
+    </ion-item>
+
+    <ion-button expand="full" type="submit" [disabled]="!registerForm.valid" class="ion-margin">
+      Iniciar Sesión
+    </ion-button>
+  </form>
+
+  <ion-button expand="full" fill="clear" routerLink="/register">
+    ¿No tienes cuenta? Regístrate
+  </ion-button>
+
+</ion-content>
