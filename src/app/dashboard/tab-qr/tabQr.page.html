@@ -1,8 +1,13 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Qr</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="content-center">
+    <ion-button fill="outline" size="large" expand="block" shape="round" (click)="scan()"> 
+      ScanCode
+    </ion-button>
 
-<ion-content class="ion-padding">
+    <ion-button fill="outline" size="large" expand="block" shape="round" (click)="logout()" color="danger"> 
+      Logout
+    </ion-button>
+
+  </div>
+ 
 </ion-content>
