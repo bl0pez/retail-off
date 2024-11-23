@@ -7,9 +7,9 @@ const routes: Routes = [
     loadChildren: () => import('./auth/tab/tab.module').then(m => m.TabPageModule)
   },
   {
-    path: '',
+    path: 'dashboard',
     loadChildren: () => import('./dashboard/tab/tab.module').then(m => m.TabPageModule)
-  }
+  },
 ];
 
 @NgModule({

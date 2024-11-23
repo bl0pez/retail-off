@@ -1,17 +1,18 @@
 import { NgModule } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
-import { RegisterRoutingModule } from "./register-routing.module";
-import { RegisterPage } from "./register.page";
+
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
+import { HistoryRoutingModule } from "./history-routing.module";
+import { HistoryPage } from "./history.page";
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         IonicModule,
-        RegisterRoutingModule
+        HistoryRoutingModule
     ],
-    declarations: [RegisterPage]
+    declarations: [HistoryPage]
 })
-export class RegisterPageModule {};
+export class HistoryPageModule {};

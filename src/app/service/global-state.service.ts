@@ -16,7 +16,7 @@ import {
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
-import { Storage } from '@ionic/storage-angular';
+import { Preferences } from '@capacitor/preferences';
 
 @Injectable({
   providedIn: 'root',
@@ -24,123 +24,77 @@ import { Storage } from '@ionic/storage-angular';
 export class GlobalStateService {
   private _isLoggedIn = false;
   private _user: Observable<any> = authState(this.auth);
-  private _storageInitialized = false;
 
-  constructor(
-    private auth: Auth,
-    private router: Router,
-    private alertController: AlertController,
-    private storage: Storage
-  ) {
-    this.initStorage();
-    this._user.subscribe(async (user) => {
+  constructor(private auth: Auth, private router: Router, private alertController: AlertController) {
+    this._user = authState(this.auth);
+    this._user.subscribe(async user => {
       this._isLoggedIn = !!user;
       if (user) {
-        const userData = this.extractUserData(user);
-        await this.saveUser(userData);
+        await Preferences.set({ key: 'isLoggedIn', value: 'true' });
       } else {
-        await this.clearUser();
+        await Preferences.remove({ key: 'isLoggedIn' });
       }
     });
-    this.restoreSession();
-  }
 
+    this.restoreSession();
+  
+  }
 
   get isLoggedIn(): boolean {
     return this._isLoggedIn;
   }
 
-
   get user(): Observable<any> {
     return this._user;
   }
 
-  private async initStorage() {
-    if (!this._storageInitialized) {
-      await this.storage.create();
-      this._storageInitialized = true;
-    }
-  }
-
-  // Extract necessary user data
-  private extractUserData(user: User) {
-    return {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-    };
-  }
-
-  // Save user to storage
-  private async saveUser(user: any) {
-    await this.initStorage();
-    await this.storage.set(KeyStorage.USER, user);
-    await this.storage.set(KeyStorage.ISLOGGEDIN, true);
-  }
-
-  // Clear user from storage
-  private async clearUser() {
-    await this.initStorage();
-    await this.storage.remove(KeyStorage.USER);
-    await this.storage.set(KeyStorage.ISLOGGEDIN, false);
-  }
-
-  // Restore session from storage
-  private async restoreSession() {
-    await this.initStorage();
-    const isLoggedIn = await this.storage.get(KeyStorage.ISLOGGEDIN);
-    if (isLoggedIn) {
-      this._isLoggedIn = true;
-    } else {
-      this._isLoggedIn = false;
-    }
-  }
-
   async login(email: string, password: string): Promise<void> {
     try {
-      const credentials = await signInWithEmailAndPassword(this.auth, email, password);
-      const userData = this.extractUserData(credentials.user);
-      await this.saveUser(userData);
-      this.router.navigate(['/dashboard/tab-qr']);
+      await signInWithEmailAndPassword(this.auth, email, password);
+      this.router.navigate(['/dashboard/home']);
     } catch (error: any) {
       console.error('Login error:', error);
-      this.showAlert('Login Error', error?.message || 'Error al iniciar sesión');
+      this.showAlert('Login Error', error?.message! || 'Error al cerrar sesión');
     }
   }
 
-  
+  async logout(): Promise<void> {
+    try {
+      await signOut(this.auth);
+      this._isLoggedIn = false;
+      await Preferences.remove({ key: 'isLoggedIn' });
+      this.router.navigate(['/home']);
+    } catch (error: any) {
+      console.error('Logout error:', error);
+      this.showAlert('Logout Error', error?.message! || 'Error al cerrar sesión');
+    }
+  }
+
   async register(email: string, password: string): Promise<void> {
     try {
-      const credentials =  await createUserWithEmailAndPassword(this.auth, email, password);
-      const userData = this.extractUserData(credentials.user);
-      await this.saveUser(userData);
-      this.router.navigate(['/dashboard/tab-qr']);
+      await createUserWithEmailAndPassword(this.auth, email, password);
+      this.router.navigate(['/dashboard/home']); 
     } catch (error: any) {
       console.error('Registration error:', error);
       this.showAlert('Registration Error', error?.message! || 'Error al cerrar sesión');
     }
   }
 
-  // Logout method
-  async logout(): Promise<void> {
-    try {
-      await signOut(this.auth);
-      await this.clearUser();
-      this._isLoggedIn = false;
-      this.router.navigate(['/login']);
-    } catch (error: any) {
-      console.error('Logout error:', error);
-      this.showAlert('Logout Error', error?.message || 'Error al cerrar sesión');
+  private async restoreSession(): Promise<void> {
+    const { value } = await Preferences.get({ key: 'isLoggedIn' });
+    if (value === 'true') {
+      this._isLoggedIn = true;
+      this.router.navigate(['/dashboard/home']); 
     }
   }
 
-  // Show alert
   private async showAlert(header: string, message: string): Promise<void> {
     const alert = await this.alertController.create({
       header,
       message,
-      buttons: ['OK'],
+      buttons: ['OK']
     });
+
     await alert.present();
   }
 }

@@ -1,16 +1,15 @@
 import { Component } from "@angular/core";
-import { CapacitorBarcodeScanner } from "@capacitor/barcode-scanner";
+import { CapacitorBarcodeScanner, CapacitorBarcodeScannerScanResult } from '@capacitor/barcode-scanner';
 import { DataLocalService } from "src/app/service/data-local.service";
 import { GlobalStateService } from "src/app/service/global-state.service";
 
 @Component({
-    selector: 'tabQr',
+    selector: 'tab-qr',
     templateUrl: '/tabQr.page.html'
 })
 export class TapQrPage {
     constructor(
         private dataLocalService: DataLocalService,
-        private globalStateService: GlobalStateService
       ) {}
     
       async scanBarcode(val?: number) {
@@ -33,18 +32,12 @@ export class TapQrPage {
           
           if (result) {
             this.dataLocalService.guardarRegistro(result);
+          } else {
+            throw new Error('No se pudo escanear el código QR');
           }
-    
         } catch (error) {
+          console.error('Error durante el escaneo:', error);
           this.dataLocalService.guardarRegistro('QRCode no reconocido');
-        }
-      }
-    
-      async logout() {
-        try {
-          await this.globalStateService.logout();
-        } catch (error) {
-          console.error(error);
         }
       }
 }
