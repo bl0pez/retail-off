@@ -5,6 +5,10 @@ const routes: Routes = [
   {
     path: '',
     loadChildren: () => import('./auth/tab/tab.module').then(m => m.TabPageModule)
+  },
+  {
+    path: '',
+    loadChildren: () => import('./dashboard/tab/tab.module').then(m => m.TabPageModule)
   }
 ];
 

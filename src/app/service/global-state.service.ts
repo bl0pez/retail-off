@@ -45,22 +45,20 @@ export class GlobalStateService {
     this.restoreSession();
   }
 
-  // Getter for login state
+
   get isLoggedIn(): boolean {
     return this._isLoggedIn;
   }
 
-  // Getter for user observable
+
   get user(): Observable<any> {
     return this._user;
   }
 
-  // Initialize storage
   private async initStorage() {
     if (!this._storageInitialized) {
       await this.storage.create();
       this._storageInitialized = true;
-      console.log('Storage initialized successfully');
     }
   }
 
@@ -78,7 +76,6 @@ export class GlobalStateService {
     await this.initStorage();
     await this.storage.set(KeyStorage.USER, user);
     await this.storage.set(KeyStorage.ISLOGGEDIN, true);
-    console.log('User saved in storage:', user);
   }
 
   // Clear user from storage
@@ -86,7 +83,6 @@ export class GlobalStateService {
     await this.initStorage();
     await this.storage.remove(KeyStorage.USER);
     await this.storage.set(KeyStorage.ISLOGGEDIN, false);
-    console.log('User cleared from storage');
   }
 
   // Restore session from storage
@@ -94,21 +90,18 @@ export class GlobalStateService {
     await this.initStorage();
     const isLoggedIn = await this.storage.get(KeyStorage.ISLOGGEDIN);
     if (isLoggedIn) {
-      console.log('Session restored');
       this._isLoggedIn = true;
     } else {
       this._isLoggedIn = false;
     }
   }
 
-  // Login method
   async login(email: string, password: string): Promise<void> {
     try {
       const credentials = await signInWithEmailAndPassword(this.auth, email, password);
-      console.log('User logged in:', credentials.user);
       const userData = this.extractUserData(credentials.user);
       await this.saveUser(userData);
-      this.router.navigate(['']);
+      this.router.navigate(['/dashboard/tab-qr']);
     } catch (error: any) {
       console.error('Login error:', error);
       this.showAlert('Login Error', error?.message || 'Error al iniciar sesión');
@@ -121,7 +114,7 @@ export class GlobalStateService {
       const credentials =  await createUserWithEmailAndPassword(this.auth, email, password);
       const userData = this.extractUserData(credentials.user);
       await this.saveUser(userData);
-      this.router.navigate(['']);
+      this.router.navigate(['/dashboard/tab-qr']);
     } catch (error: any) {
       console.error('Registration error:', error);
       this.showAlert('Registration Error', error?.message! || 'Error al cerrar sesión');
